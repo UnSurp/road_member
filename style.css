@@ -1,0 +1,275 @@
+/* Общий сброс и базовые стили */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  body {
+    font-family: Arial, sans-serif;
+    background: #f4f4f4;
+    color: #333;
+  }
+  /* Фиксированная шапка */
+  header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: #333;
+    color: #fff;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 1000;
+  }
+  header h1 {
+    font-size: 24px;
+  }
+  header button {
+    padding: 8px 12px;
+    border: none;
+    background: #ea6511;
+    color: #fff;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: 0.2s ease-in;
+  }
+  header button:hover {
+    background: #ad330e;
+  }
+  /* Основной контент с отступом для шапки */
+  main {
+    margin-top: 50px; /* Отступ для шапки */
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  main h1{
+    padding: 20px 0;
+    text-align: center;
+  }
+
+  span{
+    background: linear-gradient(45deg, #ea6511 33%, #e7362c 66%, #cc112c);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  /* Панель для админа: форма добавления нового блока */
+  .form-container {
+    width: 99%;
+    margin-bottom: 20px;
+    background: #fff;
+    padding: 15px;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+  .form-container h2 {
+    margin-bottom: 10px;
+  }
+  .form-container label {
+    display: block;
+    margin: 8px 0 4px;
+  }
+  .form-container input {
+    width: calc(100% - 20px);
+    margin-bottom: 10px;
+    padding: 8px 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+  }
+  .form-container button {
+    padding: 10px 15px;
+    border: none;
+    background: #007BFF;
+    color: #fff;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  .form-container button:hover {
+    background: #0056b3;
+  }
+  /* Сетка карточек – 4 колонки */
+  .grid-container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+  }
+  /* Стили карточки */
+  .block {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 15px;
+    text-align: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .block img {
+    max-width: 100%;
+    max-height: 150px;
+    object-fit: contain;
+    margin-bottom: 10px;
+  }
+  .block .title {
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 5px;
+  }
+  .block .description {
+    font-size: 14px;
+    margin-bottom: 5px;
+    color: #555;
+  }
+  .block .extra {
+    font-size: 14px;
+    margin-bottom: 10px;
+    color: #777;
+  }
+  .block .edit-btn, .block .delete-btn {
+    padding: 5px 10px;
+    border: none;
+    color: #fff;
+    border-radius: 3px;
+    cursor: pointer;
+    margin-top: 5px;
+    margin-right: 5px;
+  }
+  .block .edit-btn {
+    background: #28a745;
+  }
+  .block .edit-btn:hover {
+    background: #218838;
+  }
+  .block .delete-btn {
+    background: #dc3545;
+  }
+  .block .delete-btn:hover {
+    background: #c82333;
+  }
+  /* Модальное окно редактирования */
+  .edit-form {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #fff;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    z-index: 2000;
+    width: 90%;
+    max-width: 400px;
+  }
+  .edit-form h2 {
+    margin-bottom: 15px;
+  }
+  .edit-form input {
+    width: calc(100% - 20px);
+    margin-bottom: 10px;
+    padding: 8px 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+  }
+  .edit-form button {
+    padding: 8px 12px;
+    margin-right: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  .edit-form .save-btn {
+    background: #007BFF;
+    color: #fff;
+  }
+  .edit-form .cancel-btn {
+    background: #dc3545;
+    color: #fff;
+  }
+  /* Модальное окно для ввода пароля */
+  .login-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #fff;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    z-index: 3000;
+    width: 90%;
+    max-width: 300px;
+  }
+  .login-modal h2 {
+    margin-bottom: 15px;
+    font-size: 18px;
+  }
+  .login-modal input {
+    width: calc(100% - 20px);
+    margin-bottom: 10px;
+    padding: 8px 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+  }
+  .login-modal button {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-right: 10px;
+  }
+  .login-modal .login-btn {
+    background: #007BFF;
+    color: #fff;
+  }
+  .login-modal .cancel-btn {
+    background: #dc3545;
+    color: #fff;
+  }
+
+
+  footer{
+    width: 100%;
+    padding: 30px 40px;
+    background-color: #373737;
+    color: #fff;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .text_footer{
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .images_footer{
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+  }
+
+  .logoCollege_footer{
+    height: 140px;
+  }
+
+  .logoPobeda_footer{
+    height: 140px;
+  }
+
+
+  /* Адаптив: на мобильных – 1 колонка */
+  @media (max-width: 600px) {
+    .grid-container {
+      grid-template-columns: 1fr;
+    }
+    footer{
+        flex-direction: column;
+    }
+  }

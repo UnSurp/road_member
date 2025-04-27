@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Дорога Памяти</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Фиксированная шапка -->
+  <header>
+    <h1>Дорога Памяти</h1>
+    <div id="adminControl">
+      <!-- Кнопка для входа/выхода в/из режима админа -->
+      <button id="adminLoginBtn">Вход админа</button>
+    </div>
+  </header>
+  <!-- Основной контент -->
+  <main>
+    <!-- Панель добавления нового блока (видна только администратору) -->
+    <div id="adminPanel" class="form-container" style="display: none;">
+      <h2>Добавить новый блок</h2>
+      <form id="blockForm">
+        <label for="imageInput">Выберите картинку:</label>
+        <input type="file" id="imageInput" accept="image/*" required>
+        <label for="titleInput">ФИО:</label>
+        <input type="text" id="titleInput" placeholder="Введите ФИО" required>
+        <label for="descriptionInput">Год:</label>
+        <input type="text" id="descriptionInput" placeholder="Введите год" required>
+        <label for="extraInput">Информация:</label>
+        <input type="text" id="extraInput" placeholder="Введите информацию" required>
+        <button type="submit">Добавить блок</button>
+      </form>
+    </div>
+
+    <h1 id="h1_main">
+        В <span>Дороге Памяти</span> собраны данные учащихся <br>
+        Колледжа автоматизации производства об их родных, <br> 
+        защищавших нашу родину во время <br>
+        Великой Отечественной войны.
+    </h1>
+    <!-- Контейнер для карточек (отображается и клиенту, и админу) -->
+    <div class="grid-container" id="gridContainer"></div>
+  </main>
+
+  <footer>
+    <div class="text_footer">
+        <p>
+            © Колледж автоматизации производственных процессов и прикладных информационных систем, 2025
+        </p>
+        <p>
+            <b>Тел:</b> 0 000 00 00 000 <br>
+            <b>email:</b> info@gmail.com<br>
+            <b>Адрес:</b> Санкт-Петербург, пр.Басков 8
+        </p>
+    </div>
+    <div style="flex:1"></div>
+    <div class="images_footer">
+        <img class="logoPobeda_footer" src="images/logo_pobeda.svg" alt="">
+    </div>
+    
+  </footer>
+
+
+  <script>
+    // --- Администрирование ---
+    // Задаем пароль для входа в режим админа
+    const ADMIN_PASSWORD = "admin123";
+    let adminMode = false;
+
+    // Функция для открытия модального окна ввода пароля
+    function openLoginModal() {
+      const modal = document.createElement("div");
+      modal.className = "login-modal";
+      modal.innerHTML = `
+        <h2>Вход в режим админа</h2>
+        <input type="password" id="adminPasswordInput" placeholder="Введите пароль" required>
+        <button class="login-btn">Войти</button>
+        <button class="cancel-btn">Отмена</button>
+      `;
+      document.body.appendChild(modal);
+
+      modal.querySelector(".cancel-btn").addEventListener("click", () => {
+        modal.remove();
+      });
+      modal.querySelector(".login-btn").addEventListener("click", () => {
+        const pass = document.getElementById("adminPasswordInput").value;
+        if (pass === ADMIN_PASSWORD) {
+          adminMode = true;
+          // Показываем панель добавления
+          document.getElementById("adminPanel").style.display = "block";
+          // Меняем текст кнопки на "Выход админа"
+          document.getElementById("adminLoginBtn").textContent = "Выйти";
+          modal.remove();
+          renderBlocks();
+        } else {
+          alert("Неверный пароль!");
+        }
+      });
+    }
+
+    // Функция выхода из режима админа
+    function logoutAdmin() {
+      adminMode = false;
+      document.getElementById("adminPanel").style.display = "none";
+      document.getElementById("adminLoginBtn").textContent = "Вход админа";
+      renderBlocks();
+    }
+
+    // Обработка нажатия кнопки в шапке
+    document.getElementById("adminLoginBtn").addEventListener("click", () => {
+      if (adminMode) {
+        logoutAdmin();
+      } else {
+        openLoginModal();
+      }
+    });
+
+    // --- Работа с карточками ---
+    let blocksData = [];
+
+    // Загрузка данных с сервера
+    document.addEventListener("DOMContentLoaded", () => {
+      fetch("/data")
+        .then(response => response.json())
+        .then(data => {
+          blocksData = data;
+          renderBlocks();
+        })
+        .catch(err => console.error("Ошибка загрузки данных:", err));
+    });
+
+    // Функция рендеринга карточек
+    function renderBlocks() {
+      const container = document.getElementById("gridContainer");
+      container.innerHTML = "";
+      blocksData.forEach((block, index) => {
+        const blockEl = document.createElement("div");
+        blockEl.className = "block";
+
+        const imgEl = document.createElement("img");
+        imgEl.src = block.image;
+        imgEl.alt = "Загруженная картинка";
+        blockEl.appendChild(imgEl);
+
+        const titleEl = document.createElement("div");
+        titleEl.className = "title";
+        titleEl.textContent = block.title;
+        blockEl.appendChild(titleEl);
+
+        const descEl = document.createElement("div");
+        descEl.className = "description";
+        descEl.textContent = block.description;
+        blockEl.appendChild(descEl);
+
+        const extraEl = document.createElement("div");
+        extraEl.className = "extra";
+        extraEl.textContent = block.extra;
+        blockEl.appendChild(extraEl);
+
+        if (adminMode) {
+          // Добавляем кнопку редактирования
+          const editBtn = document.createElement("button");
+          editBtn.className = "edit-btn";
+          editBtn.textContent = "Редактировать";
+          editBtn.addEventListener("click", () => openEditForm(block, index));
+          blockEl.appendChild(editBtn);
+          
+          // Добавляем кнопку удаления
+          const deleteBtn = document.createElement("button");
+          deleteBtn.className = "delete-btn";
+          deleteBtn.textContent = "Удалить";
+          deleteBtn.addEventListener("click", () => deleteBlock(index));
+          blockEl.appendChild(deleteBtn);
+        }
+        container.appendChild(blockEl);
+      });
+    }
+
+    // Функция добавления нового блока (работает только в админ-режиме)
+    if (true) {  // Вешаем обработчик всегда – сам блок скрыт для клиента через CSS display: none
+      document.getElementById("blockForm").addEventListener("submit", function(event) {
+        event.preventDefault();
+        const imageInput = document.getElementById("imageInput");
+        const titleInput = document.getElementById("titleInput");
+        const descInput = document.getElementById("descriptionInput");
+        const extraInput = document.getElementById("extraInput");
+
+        if (imageInput.files && imageInput.files[0]) {
+          const file = imageInput.files[0];
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            const newBlock = {
+              image: e.target.result,
+              title: titleInput.value.trim(),
+              description: descInput.value.trim(),
+              extra: extraInput.value.trim()
+            };
+            blocksData.push(newBlock);
+            // Отправляем новый блок на сервер
+            fetch("/add", {
+              method: "POST",
+              headers: {"Content-Type": "application/json"},
+              body: JSON.stringify(newBlock)
+            })
+            .then(response => {
+              if (!response.ok) {
+                throw new Error(`HTTP: ${response.status} ${response.statusText}`);
+              }
+              return response.json();
+            })
+            .then(result => {
+              if (result.success) {
+                renderBlocks();
+                document.getElementById("blockForm").reset();
+              } else {
+                alert("Ошибка при добавлении блока");
+              }
+            })
+            .catch(err => {
+              console.error("Ошибка добавления блока:", err);
+              alert("Ошибка добавления блока: " + err.message);
+            });
+          };
+          reader.readAsDataURL(file);
+        } else {
+          alert("Пожалуйста, выберите картинку.");
+        }
+      });
+    }
+
+    // Функция удаления карточки (по индексу)
+    function deleteBlock(index) {
+      if (confirm("Вы уверены, что хотите удалить этот блок?")) {
+        blocksData.splice(index, 1);
+        // Отправляем обновлённый массив на сервер
+        fetch("/update", {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify(blocksData)
+        })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`HTTP: ${response.status} ${response.statusText}`);
+          }
+          return response.json();
+        })
+        .then(result => {
+          if (result.success) {
+            renderBlocks();
+          } else {
+            alert("Ошибка при обновлении данных после удаления");
+          }
+        })
+        .catch(err => {
+          console.error("Ошибка удаления:", err);
+          alert("Ошибка удаления: " + err.message);
+        });
+      }
+    }
+
+    // Функция открытия модального окна редактирования
+    function openEditForm(block, index) {
+      const editFormContainer = document.createElement("div");
+      editFormContainer.className = "edit-form";
+      editFormContainer.innerHTML = `
+        <h2>Редактировать блок</h2>
+        <label>Изменить картинку (оставьте пустым для сохранения текущей):</label>
+        <input type="file" class="editImageInput" accept="image/*">
+        <label>Заголовок:</label>
+        <input type="text" class="editTitleInput" value="${block.title}">
+        <label>Описание:</label>
+        <input type="text" class="editDescriptionInput" value="${block.description}">
+        <label>Дополнительная информация:</label>
+        <input type="text" class="editExtraInput" value="${block.extra}">
+        <button class="save-btn">Сохранить</button>
+        <button class="cancel-btn">Отмена</button>
+      `;
+      document.body.appendChild(editFormContainer);
+
+      const saveBtn = editFormContainer.querySelector(".save-btn");
+      const cancelBtn = editFormContainer.querySelector(".cancel-btn");
+
+      cancelBtn.addEventListener("click", () => {
+        editFormContainer.remove();
+      });
+
+      saveBtn.addEventListener("click", () => {
+        const editImageInput = editFormContainer.querySelector(".editImageInput");
+        const editTitleInput = editFormContainer.querySelector(".editTitleInput");
+        const editDescriptionInput = editFormContainer.querySelector(".editDescriptionInput");
+        const editExtraInput = editFormContainer.querySelector(".editExtraInput");
+
+        const newTitle = editTitleInput.value.trim();
+        const newDescription = editDescriptionInput.value.trim();
+        const newExtra = editExtraInput.value.trim();
+
+        if (editImageInput.files && editImageInput.files[0]) {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            block.image = e.target.result;
+            updateBlockData(block, newTitle, newDescription, newExtra, index, editFormContainer);
+          };
+          reader.readAsDataURL(editImageInput.files[0]);
+        } else {
+          updateBlockData(block, newTitle, newDescription, newExtra, index, editFormContainer);
+        }
+      });
+    }
+
+    // Функция обновления данных блока и отправки всего массива на сервер
+    function updateBlockData(block, newTitle, newDescription, newExtra, index, editFormContainer) {
+      block.title = newTitle;
+      block.description = newDescription;
+      block.extra = newExtra;
+      blocksData[index] = block;
+
+      fetch("/update", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(blocksData)
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP: ${response.status} ${response.statusText}`);
+        }
+        return response.json();
+      })
+      .then(result => {
+        if (result.success) {
+          renderBlocks();
+          editFormContainer.remove();
+        } else {
+          alert("Ошибка при обновлении данных");
+        }
+      })
+      .catch(err => {
+        console.error("Ошибка обновления:", err);
+        alert("Ошибка при обновлении данных: " + err.message);
+      });
+    }
+  </script>
+</body>
+</html>
